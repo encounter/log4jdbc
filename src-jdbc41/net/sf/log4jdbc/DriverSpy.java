@@ -89,7 +89,7 @@ import java.util.logging.Logger;
  * time. This will not usually be a problem, since the driver is retrieved by
  * it's URL from the DriverManager in the first place (thus establishing an
  * underlying real driver), and in most applications their is only one database.
- * 
+ *
  * @author Arthur Blake
  */
 public class DriverSpy implements Driver
@@ -103,7 +103,7 @@ public class DriverSpy implements Driver
 	 * Maps driver class names to RdbmsSpecifics objects for each kind of
 	 * database.
 	 */
-	private static Map rdbmsSpecifics;
+	private static Map<String, RdbmsSpecifics> rdbmsSpecifics;
 
 	static final SpyLogDelegator log = SpyLogFactory.getSpyLogDelegator();
 
@@ -129,7 +129,7 @@ public class DriverSpy implements Driver
 	 * An amount of time in milliseconds for which SQL that executed taking this
 	 * long or more to run shall cause a warning message to be generated on the
 	 * SQL timing logger.
-	 * 
+	 *
 	 * This threshold will <i>ONLY</i> be used if SqlTimingWarnThresholdEnabled is
 	 * true.
 	 */
@@ -145,7 +145,7 @@ public class DriverSpy implements Driver
 	 * An amount of time in milliseconds for which SQL that executed taking this
 	 * long or more to run shall cause an error message to be generated on the SQL
 	 * timing logger.
-	 * 
+	 *
 	 * This threshold will <i>ONLY</i> be used if SqlTimingErrorThresholdEnabled
 	 * is true.
 	 */
@@ -232,10 +232,10 @@ public class DriverSpy implements Driver
 
 	/**
 	 * Get a Long option from a property and log a debug message about this.
-	 * 
+	 *
 	 * @param props Properties to get option from.
 	 * @param propName property key.
-	 * 
+	 *
 	 * @return the value of that property key, converted to a Long. Or null if not
 	 *         defined or is invalid.
 	 */
@@ -251,7 +251,7 @@ public class DriverSpy implements Driver
 		{
 			try
 			{
-				longPropValue = new Long(Long.parseLong(propValue));
+				longPropValue = Long.parseLong(propValue);
 				log.debug("  " + propName + " = " + longPropValue);
 			}
 			catch (NumberFormatException n)
@@ -265,10 +265,10 @@ public class DriverSpy implements Driver
 
 	/**
 	 * Get a Long option from a property and log a debug message about this.
-	 * 
+	 *
 	 * @param props Properties to get option from.
 	 * @param propName property key.
-	 * 
+	 *
 	 * @return the value of that property key, converted to a Long. Or null if not
 	 *         defined or is invalid.
 	 */
@@ -281,20 +281,20 @@ public class DriverSpy implements Driver
 		{
 			log.debug("x " + propName + " is not defined (using default of " +
 				defaultValue + ")");
-			longPropValue = new Long(defaultValue);
+			longPropValue = defaultValue;
 		}
 		else
 		{
 			try
 			{
-				longPropValue = new Long(Long.parseLong(propValue));
+				longPropValue = Long.parseLong(propValue);
 				log.debug("  " + propName + " = " + longPropValue);
 			}
 			catch (NumberFormatException n)
 			{
 				log.debug("x " + propName + " \"" + propValue +
 					"\" is not a valid number (using default of " + defaultValue + ")");
-				longPropValue = new Long(defaultValue);
+				longPropValue = defaultValue;
 			}
 		}
 		return longPropValue;
@@ -302,7 +302,7 @@ public class DriverSpy implements Driver
 
 	/**
 	 * Get a String option from a property and log a debug message about this.
-	 * 
+	 *
 	 * @param props Properties to get option from.
 	 * @param propName property key.
 	 * @return the value of that property key.
@@ -324,11 +324,11 @@ public class DriverSpy implements Driver
 
 	/**
 	 * Get a boolean option from a property and log a debug message about this.
-	 * 
+	 *
 	 * @param props Properties to get option from.
 	 * @param propName property name to get.
 	 * @param defaultValue default value to use if undefined.
-	 * 
+	 *
 	 * @return boolean value found in property, or defaultValue if no property
 	 *         found.
 	 */
@@ -406,14 +406,14 @@ public class DriverSpy implements Driver
 		SqlTimingWarnThresholdEnabled = (thresh != null);
 		if (SqlTimingWarnThresholdEnabled)
 		{
-			SqlTimingWarnThresholdMsec = thresh.longValue();
+			SqlTimingWarnThresholdMsec = thresh;
 		}
 
 		thresh = getLongOption(props, "log4jdbc.sqltiming.error.threshold");
 		SqlTimingErrorThresholdEnabled = (thresh != null);
 		if (SqlTimingErrorThresholdEnabled)
 		{
-			SqlTimingErrorThresholdMsec = thresh.longValue();
+			SqlTimingErrorThresholdMsec = thresh;
 		}
 
 		DumpBooleanAsTrueFalse = getBooleanOption(props,
@@ -461,7 +461,7 @@ public class DriverSpy implements Driver
 		// time. The driver can spy on any driver type, it's just a little bit
 		// easier to configure log4jdbc if it's one of these types!
 
-		Set subDrivers = new TreeSet();
+		Set<String> subDrivers = new TreeSet<>();
 
 		if (AutoLoadPopularDrivers)
 		{
@@ -493,10 +493,9 @@ public class DriverSpy implements Driver
 		{
 			String[] moreDriversArr = moreDrivers.split(",");
 
-			for (int i = 0; i < moreDriversArr.length; i++)
-			{
-				subDrivers.add(moreDriversArr[i]);
-				log.debug("    will look for specific driver " + moreDriversArr[i]);
+			for (String aMoreDriversArr : moreDriversArr) {
+				subDrivers.add(aMoreDriversArr);
+				log.debug("    will look for specific driver " + aMoreDriversArr);
 			}
 		}
 
@@ -508,16 +507,15 @@ public class DriverSpy implements Driver
 		{
 			// this exception should never be thrown, JDBC just defines it
 			// for completeness
-			throw (RuntimeException) new RuntimeException(
-				"could not register log4jdbc driver!").initCause(s);
+			throw new RuntimeException("could not register log4jdbc driver!", s);
 		}
 
 		// instantiate all the supported drivers and remove
 		// those not found
 		String driverClass;
-		for (Iterator i = subDrivers.iterator(); i.hasNext();)
+		for (Iterator<String> i = subDrivers.iterator(); i.hasNext();)
 		{
-			driverClass = (String) i.next();
+			driverClass = i.next();
 			try
 			{
 				Class.forName(driverClass);
@@ -540,7 +538,7 @@ public class DriverSpy implements Driver
 		MySqlRdbmsSpecifics mySql = new MySqlRdbmsSpecifics();
 
 		/** create lookup Map for specific rdbms formatters */
-		rdbmsSpecifics = new HashMap();
+		rdbmsSpecifics = new HashMap<>();
 		rdbmsSpecifics.put("oracle.jdbc.driver.OracleDriver", oracle);
 		rdbmsSpecifics.put("oracle.jdbc.OracleDriver", oracle);
 		rdbmsSpecifics.put("net.sourceforge.jtds.jdbc.Driver", sqlServer);
@@ -556,7 +554,7 @@ public class DriverSpy implements Driver
 
 	/**
 	 * Get the RdbmsSpecifics object for a given Connection.
-	 * 
+	 *
 	 * @param conn JDBC connection to get RdbmsSpecifics for.
 	 * @return RdbmsSpecifics for the given connection.
 	 */
@@ -575,7 +573,7 @@ public class DriverSpy implements Driver
 
 		log.debug("driver name is " + driverName);
 
-		RdbmsSpecifics r = (RdbmsSpecifics) rdbmsSpecifics.get(driverName);
+		RdbmsSpecifics r = rdbmsSpecifics.get(driverName);
 
 		if (r == null)
 		{
@@ -598,7 +596,7 @@ public class DriverSpy implements Driver
 	 * Get the major version of the driver. This call will be delegated to the
 	 * underlying driver that is being spied upon (if there is no underlying
 	 * driver found, then 1 will be returned.)
-	 * 
+	 *
 	 * @return the major version of the JDBC driver.
 	 */
 	public int getMajorVersion()
@@ -617,7 +615,7 @@ public class DriverSpy implements Driver
 	 * Get the minor version of the driver. This call will be delegated to the
 	 * underlying driver that is being spied upon (if there is no underlying
 	 * driver found, then 0 will be returned.)
-	 * 
+	 *
 	 * @return the minor version of the JDBC driver.
 	 */
 	public int getMinorVersion()
@@ -636,7 +634,7 @@ public class DriverSpy implements Driver
 	 * Report whether the underlying driver is JDBC compliant. If there is no
 	 * underlying driver, false will be returned, because the driver cannot
 	 * actually do any work without an underlying driver.
-	 * 
+	 *
 	 * @return <code>true</code> if the underlying driver is JDBC Compliant;
 	 *         <code>false</code> otherwise.
 	 */
@@ -649,11 +647,11 @@ public class DriverSpy implements Driver
 	/**
 	 * Returns true if this is a <code>jdbc:log4</code> URL and if the URL is for
 	 * an underlying driver that this DriverSpy can spy on.
-	 * 
+	 *
 	 * @param url JDBC URL.
-	 * 
+	 *
 	 * @return true if this Driver can handle the URL.
-	 * 
+	 *
 	 * @throws SQLException if a database access error occurs
 	 */
 	public boolean acceptsURL(String url) throws SQLException
@@ -673,13 +671,13 @@ public class DriverSpy implements Driver
 	/**
 	 * Given a <code>jdbc:log4</code> type URL, find the underlying real driver
 	 * that accepts the URL.
-	 * 
+	 *
 	 * @param url JDBC connection URL.
-	 * 
+	 *
 	 * @return Underlying driver for the given URL. Null is returned if the URL is
 	 *         not a <code>jdbc:log4</code> type URL or there is no underlying
 	 *         driver that accepts the URL.
-	 * 
+	 *
 	 * @throws SQLException if a database access error occurs.
 	 */
 	private Driver getUnderlyingDriver(String url) throws SQLException
@@ -688,12 +686,12 @@ public class DriverSpy implements Driver
 		{
 			url = url.substring(9);
 
-			Enumeration e = DriverManager.getDrivers();
+			Enumeration<Driver> e = DriverManager.getDrivers();
 
 			Driver d;
 			while (e.hasMoreElements())
 			{
-				d = (Driver) e.nextElement();
+				d = e.nextElement();
 
 				if (d.acceptsURL(url))
 				{
@@ -709,15 +707,15 @@ public class DriverSpy implements Driver
 	 * DriverSpy is spying on. If logging is not enabled, an actual Connection to
 	 * the database returned. If logging is enabled, a ConnectionSpy object which
 	 * wraps the real Connection is returned.
-	 * 
+	 *
 	 * @param url JDBC connection URL .
 	 * @param info a list of arbitrary string tag/value pairs as connection
 	 *        arguments. Normally at least a "user" and "password" property should
 	 *        be included.
-	 * 
+	 *
 	 * @return a <code>Connection</code> object that represents a connection to
 	 *         the URL.
-	 * 
+	 *
 	 * @throws SQLException if a database access error occurs
 	 */
 	public Connection connect(String url, Properties info) throws SQLException
@@ -746,7 +744,7 @@ public class DriverSpy implements Driver
 			String dclass = d.getClass().getName();
 			if (dclass != null && dclass.length() > 0)
 			{
-				r = (RdbmsSpecifics) rdbmsSpecifics.get(dclass);
+				r = rdbmsSpecifics.get(dclass);
 			}
 
 			if (r == null)
@@ -764,15 +762,15 @@ public class DriverSpy implements Driver
 
 	/**
 	 * Gets information about the possible properties for the underlying driver.
-	 * 
+	 *
 	 * @param url the URL of the database to which to connect
-	 * 
+	 *
 	 * @param info a proposed list of tag/value pairs that will be sent on connect
 	 *        open
 	 * @return an array of <code>DriverPropertyInfo</code> objects describing
 	 *         possible properties. This array may be an empty array if no
 	 *         properties are required.
-	 * 
+	 *
 	 * @throws SQLException if a database access error occurs
 	 */
 	public DriverPropertyInfo[] getPropertyInfo(String url, Properties info)

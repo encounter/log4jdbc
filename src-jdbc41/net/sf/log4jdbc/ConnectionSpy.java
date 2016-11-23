@@ -68,7 +68,7 @@ public class ConnectionSpy implements Connection, Spy
    * Contains a Mapping of connectionNumber to currently open ConnectionSpy
    * objects.
    */
-  private static final Map connectionTracker = new HashMap();
+  private static final Map<Integer, ConnectionSpy> connectionTracker = new HashMap<>();
 
   /**
    * Get a dump of how many connections are open, and which connection numbers
@@ -78,7 +78,7 @@ public class ConnectionSpy implements Connection, Spy
    */
   public static String getOpenConnectionsDump()
   {
-    StringBuffer dump = new StringBuffer();
+    StringBuilder dump = new StringBuilder();
     int size;
     Integer[] keysArr;
     synchronized (connectionTracker)
@@ -88,16 +88,15 @@ public class ConnectionSpy implements Connection, Spy
       {
         return "open connections:  none";
       }
-      Set keys = connectionTracker.keySet();
-      keysArr = (Integer[]) keys.toArray(new Integer[keys.size()]);
+      Set<Integer> keys = connectionTracker.keySet();
+      keysArr = keys.toArray(new Integer[keys.size()]);
     }
 
     Arrays.sort(keysArr);
 
     dump.append("open connections:  ");
-    for (int i=0; i < keysArr.length; i++)
-    {
-      dump.append(keysArr[i]);
+    for (Integer aKeysArr : keysArr) {
+      dump.append(aKeysArr);
       dump.append(" ");
     }
 
@@ -139,7 +138,7 @@ public class ConnectionSpy implements Connection, Spy
 
     synchronized (connectionTracker)
     {
-      connectionNumber = new Integer(++lastConnectionNumber);
+      connectionNumber = ++lastConnectionNumber;
       connectionTracker.put(connectionNumber, this);
     }
     log.connectionOpened(this);
@@ -445,7 +444,7 @@ public class ConnectionSpy implements Connection, Spy
   public PreparedStatement prepareStatement(String sql, int columnIndexes[]) throws SQLException
   {
     //todo: dump the array here?
-    String methodCall = "prepareStatement(" + sql + ", " + columnIndexes + ")";
+    String methodCall = "prepareStatement(" + sql + ", " + Arrays.toString(columnIndexes) + ")";
     try
     {
       PreparedStatement statement = realConnection.prepareStatement(sql, columnIndexes);
@@ -475,7 +474,7 @@ public class ConnectionSpy implements Connection, Spy
   public PreparedStatement prepareStatement(String sql, String columnNames[]) throws SQLException
   {
     //todo: dump the array here?
-    String methodCall = "prepareStatement(" + sql + ", " + columnNames + ")";
+    String methodCall = "prepareStatement(" + sql + ", " + Arrays.toString(columnNames) + ")";
     try
     {
       PreparedStatement statement = realConnection.prepareStatement(sql, columnNames);
@@ -624,7 +623,7 @@ public class ConnectionSpy implements Connection, Spy
 
   public Struct createStruct(String typeName, Object[] attributes) throws SQLException {
     //todo: dump attributes?
-    String methodCall = "createStruct(" + typeName + ", " + attributes +")";
+    String methodCall = "createStruct(" + typeName + ", " + Arrays.toString(attributes) +")";
     try
     {
       return (Struct) reportReturn(methodCall,realConnection.createStruct(typeName, attributes));

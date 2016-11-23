@@ -34,6 +34,7 @@ import java.sql.SQLXML;
 import java.sql.Statement;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Map;
 
@@ -637,7 +638,7 @@ public class CallableStatementSpy extends PreparedStatementSpy implements Callab
   public void setBytes(String parameterName, byte[] x) throws SQLException
   {
     //todo: dump byte array?
-    String methodCall = "setBytes(" + parameterName + ", " + x + ")";
+    String methodCall = "setBytes(" + parameterName + ", " + Arrays.toString(x) + ")";
     try
     {
       realCallableStatement.setBytes(parameterName, x);
@@ -942,6 +943,7 @@ public class CallableStatementSpy extends PreparedStatementSpy implements Callab
   /**
    * @deprecated
    */
+  @SuppressWarnings("deprecation")
   public BigDecimal getBigDecimal(int parameterIndex, int scale) throws SQLException
   {
     String methodCall = "getBigDecimal(" + parameterIndex + ", " + scale + ")";

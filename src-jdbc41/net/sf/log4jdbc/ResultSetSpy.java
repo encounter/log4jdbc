@@ -40,7 +40,7 @@ import java.util.Map;
 /**
  * Wraps a ResultSet and reports method calls, returns and exceptions.
  *
- * JDBC 4 version.
+ * JDBC 4.1 version.
  *
  * @author Arthur Blake
  */

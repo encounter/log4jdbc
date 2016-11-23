@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Delegates JDBC spy logging events to the the Simple Logging Facade for Java
  * (slf4j).
- * 
+ *
  * @author Arthur Blake
  */
 public class Slf4jSpyLogDelegator implements SpyLogDelegator
@@ -83,7 +83,7 @@ public class Slf4jSpyLogDelegator implements SpyLogDelegator
 	/**
 	 * Determine if any of the 5 log4jdbc spy loggers are turned on (jdbc.audit |
 	 * jdbc.resultset | jdbc.sqlonly | jdbc.sqltiming | jdbc.connection)
-	 * 
+	 *
 	 * @return true if any of the 5 spy jdbc/sql loggers are enabled at debug info
 	 *         or error level.
 	 */
@@ -96,7 +96,7 @@ public class Slf4jSpyLogDelegator implements SpyLogDelegator
 
 	/**
 	 * Called when a jdbc method throws an Exception.
-	 * 
+	 *
 	 * @param spy the Spy wrapping the class that threw an Exception.
 	 * @param methodCall a description of the name and call parameters of the
 	 *        method generated the Exception.
@@ -150,7 +150,7 @@ public class Slf4jSpyLogDelegator implements SpyLogDelegator
 	/**
 	 * Called when a JDBC method from a Connection, Statement, PreparedStatement,
 	 * CallableStatement or ResultSet returns.
-	 * 
+	 *
 	 * @param spy the Spy wrapping the class that called the method that returned.
 	 * @param methodCall a description of the name and call parameters of the
 	 *        method that returned.
@@ -180,7 +180,7 @@ public class Slf4jSpyLogDelegator implements SpyLogDelegator
 
 	/**
 	 * Called when a spied upon object is constructed.
-	 * 
+	 *
 	 * @param spy the Spy wrapping the class that called the method that returned.
 	 * @param constructionInfo information about the object construction
 	 */
@@ -194,7 +194,7 @@ public class Slf4jSpyLogDelegator implements SpyLogDelegator
 	/**
 	 * Determine if the given sql should be logged or not based on the various
 	 * DumpSqlXXXXXX flags.
-	 * 
+	 *
 	 * @param sql SQL to test.
 	 * @return true if the SQL should be logged, false if not.
 	 */
@@ -220,7 +220,7 @@ public class Slf4jSpyLogDelegator implements SpyLogDelegator
 
 	/**
 	 * Special call that is called only for JDBC method calls that contain SQL.
-	 * 
+	 *
 	 * @param spy the Spy wrapping the class where the SQL occured.
 	 * @param methodCall a description of the name and call parameters of the
 	 *        method that generated the SQL.
@@ -245,7 +245,7 @@ public class Slf4jSpyLogDelegator implements SpyLogDelegator
 	/**
 	 * Break an SQL statement up into multiple lines in an attempt to make it more
 	 * readable
-	 * 
+	 *
 	 * @param sql SQL to break up.
 	 * @return SQL broken up into multiple lines
 	 */
@@ -455,14 +455,14 @@ public class Slf4jSpyLogDelegator implements SpyLogDelegator
 
 	/**
 	 * Special call that is called only for JDBC method calls that contain SQL.
-	 * 
+	 *
 	 * @param spy the Spy wrapping the class where the SQL occurred.
-	 * 
+	 *
 	 * @param execTime how long it took the SQL to run, in milliseconds.
-	 * 
+	 *
 	 * @param methodCall a description of the name and call parameters of the
 	 *        method that generated the SQL.
-	 * 
+	 *
 	 * @param sql SQL that occurred.
 	 */
 	public void sqlTimingOccured(Spy spy, long execTime, String methodCall,
@@ -501,24 +501,24 @@ public class Slf4jSpyLogDelegator implements SpyLogDelegator
 
 	/**
 	 * Helper method to quickly build a SQL timing dump output String for logging.
-	 * 
+	 *
 	 * @param spy the Spy wrapping the class where the SQL occurred.
-	 * 
+	 *
 	 * @param execTime how long it took the SQL to run, in milliseconds.
-	 * 
+	 *
 	 * @param methodCall a description of the name and call parameters of the
 	 *        method that generated the SQL.
-	 * 
+	 *
 	 * @param sql SQL that occurred.
-	 * 
+	 *
 	 * @param debugInfo if true, include debug info at the front of the output.
-	 * 
+	 *
 	 * @return a SQL timing dump String for logging.
 	 */
 	private String buildSqlTimingDump(Spy spy, long execTime, String methodCall,
 		String sql, boolean debugInfo)
 	{
-		StringBuffer out = new StringBuffer();
+		StringBuilder out = new StringBuilder();
 
 		if (debugInfo)
 		{
@@ -547,11 +547,11 @@ public class Slf4jSpyLogDelegator implements SpyLogDelegator
 	 * Get debugging info - the module and line number that called the logger
 	 * version that prints the stack trace information from the point just before
 	 * we got it (net.sf.log4jdbc)
-	 * 
+	 *
 	 * if the optional log4jdbc.debug.stack.prefix system property is defined then
 	 * the last call point from an application is shown in the debug trace output,
 	 * instead of the last direct caller into log4jdbc
-	 * 
+	 *
 	 * @return debugging info for whoever called into JDBC from within the
 	 *         application.
 	 */
@@ -566,7 +566,7 @@ public class Slf4jSpyLogDelegator implements SpyLogDelegator
 		{
 			String className;
 
-			StringBuffer dump = new StringBuffer();
+			StringBuilder dump = new StringBuilder();
 
 			/**
 			 * The DumpFullDebugStackTrace option is useful in some situations when we
@@ -576,21 +576,16 @@ public class Slf4jSpyLogDelegator implements SpyLogDelegator
 			if (DriverSpy.DumpFullDebugStackTrace)
 			{
 				boolean first = true;
-				for (int i = 0; i < stackTrace.length; i++)
-				{
-					className = stackTrace[i].getClassName();
-					if (!className.startsWith("net.sf.log4jdbc"))
-					{
-						if (first)
-						{
+				for (StackTraceElement aStackTrace : stackTrace) {
+					className = aStackTrace.getClassName();
+					if (!className.startsWith("net.sf.log4jdbc")) {
+						if (first) {
 							first = false;
-						}
-						else
-						{
+						} else {
 							dump.append("  ");
 						}
 						dump.append("at ");
-						dump.append(stackTrace[i]);
+						dump.append(aStackTrace);
 						dump.append(nl);
 					}
 				}
@@ -639,7 +634,7 @@ public class Slf4jSpyLogDelegator implements SpyLogDelegator
 
 	/**
 	 * Log a Setup and/or administrative log message for log4jdbc.
-	 * 
+	 *
 	 * @param msg message to log.
 	 */
 	public void debug(String msg)
@@ -649,7 +644,7 @@ public class Slf4jSpyLogDelegator implements SpyLogDelegator
 
 	/**
 	 * Called whenever a new connection spy is created.
-	 * 
+	 *
 	 * @param spy ConnectionSpy that was created.
 	 */
 	public void connectionOpened(Spy spy)
@@ -668,7 +663,7 @@ public class Slf4jSpyLogDelegator implements SpyLogDelegator
 
 	/**
 	 * Called whenever a connection spy is closed.
-	 * 
+	 *
 	 * @param spy ConnectionSpy that was closed.
 	 */
 	public void connectionClosed(Spy spy)

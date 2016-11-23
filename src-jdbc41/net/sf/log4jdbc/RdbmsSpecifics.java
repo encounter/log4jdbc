@@ -63,8 +63,8 @@ public class RdbmsSpecifics
       else if (object instanceof Boolean)
       {
         return DriverSpy.DumpBooleanAsTrueFalse?
-            ((Boolean)object).booleanValue()?"true":"false"
-            :((Boolean)object).booleanValue()?"1":"0";
+                (Boolean) object ?"true":"false"
+            : (Boolean) object ?"1":"0";
       }
       else
       {
@@ -80,12 +80,12 @@ public class RdbmsSpecifics
    *
    * @return the input String, escaped.
    */
-  String escapeString(String in)
+  private String escapeString(String in)
   {
     StringBuilder out = new StringBuilder();
     for (int i=0, j=in.length(); i < j; i++)
     {
-      char c = in.charAt(i); 
+      char c = in.charAt(i);
       if (c == '\'')
       {
         out.append(c);

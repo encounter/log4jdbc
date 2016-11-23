@@ -22,6 +22,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Statement;
+import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -350,7 +351,7 @@ public class StatementSpy implements Statement, Spy
 
   public int executeUpdate(String sql, String[] columnNames) throws SQLException
   {
-    String methodCall = "executeUpdate(" + sql + ", " + columnNames + ")";
+    String methodCall = "executeUpdate(" + sql + ", " + Arrays.toString(columnNames) + ")";
     reportStatementSql(sql, methodCall);
     long tstart = System.currentTimeMillis();
     try
@@ -368,7 +369,7 @@ public class StatementSpy implements Statement, Spy
 
   public boolean execute(String sql, String[] columnNames) throws SQLException
   {
-    String methodCall = "execute(" + sql + ", " + columnNames + ")";
+    String methodCall = "execute(" + sql + ", " + Arrays.toString(columnNames) + ")";
     reportStatementSql(sql, methodCall);
     long tstart = System.currentTimeMillis();
     try
@@ -433,7 +434,7 @@ public class StatementSpy implements Statement, Spy
    * Tracking of current batch (see addBatch, clearBatch and executeBatch)
    * //todo: should access to this List be synchronized?
    */
-  protected List currentBatch = new ArrayList();
+  protected List<String> currentBatch = new ArrayList<>();
 
   public void addBatch(String sql) throws SQLException
   {
@@ -502,14 +503,14 @@ public class StatementSpy implements Statement, Spy
     String methodCall = "executeBatch()";
 
     int j=currentBatch.size();
-    StringBuffer batchReport = new StringBuffer("batching " + j + " statements:");
+    StringBuilder batchReport = new StringBuilder("batching " + j + " statements:");
 
     int fieldSize = (""+j).length();
 
     String sql;
     for (int i=0; i < j;)
     {
-      sql = (String) currentBatch.get(i);
+      sql = currentBatch.get(i);
       batchReport.append("\n");
       batchReport.append(Utilities.rightJustify(fieldSize,""+(++i)));
       batchReport.append(":  ");
@@ -888,7 +889,7 @@ public class StatementSpy implements Statement, Spy
 
   public int executeUpdate(String sql, int[] columnIndexes) throws SQLException
   {
-    String methodCall = "executeUpdate(" + sql + ", " + columnIndexes + ")";
+    String methodCall = "executeUpdate(" + sql + ", " + Arrays.toString(columnIndexes) + ")";
     reportStatementSql(sql, methodCall);
     long tstart = System.currentTimeMillis();
     try
@@ -906,7 +907,7 @@ public class StatementSpy implements Statement, Spy
 
   public boolean execute(String sql, int[] columnIndexes) throws SQLException
   {
-    String methodCall = "execute(" + sql + ", " + columnIndexes + ")";
+    String methodCall = "execute(" + sql + ", " + Arrays.toString(columnIndexes) + ")";
     reportStatementSql(sql, methodCall);
     long tstart = System.currentTimeMillis();
     try

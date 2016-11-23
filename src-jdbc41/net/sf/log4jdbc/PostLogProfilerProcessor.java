@@ -91,7 +91,7 @@ public class PostLogProfilerProcessor {
   /**
    * Collection of all sql that took longer than "threshold" msec to run.
    */
-  private List flaggedSql = new LinkedList();
+  private List<ProfiledSql> flaggedSql = new LinkedList<>();
 
   /**
    * Process given filename, and produce sql profiling report to given PrintStream.
@@ -233,7 +233,7 @@ public class PostLogProfilerProcessor {
 
     public ProfiledSql (long msec, String sql)
     {
-      this.execTime= new Long(msec);
+      this.execTime= msec;
       this.sql = sql;
     }
 
